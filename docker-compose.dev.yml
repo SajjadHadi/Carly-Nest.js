@@ -1,0 +1,14 @@
+---
+version: "3.8"
+
+services:
+  backend-dev:
+    build: .
+    command: npm run start:dev
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /usr/src/carly
+    ports:
+      - "3000:3000"
