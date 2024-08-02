@@ -2,7 +2,7 @@
 version: "3.8"
 
 services:
-  backend-dev:
+  backend-prod:
     build: .
     command: npm run start:prod
     ports:
