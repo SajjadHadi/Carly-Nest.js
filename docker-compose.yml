@@ -4,6 +4,6 @@ version: "3.8"
 services:
   backend-prod:
     build: .
-    command: npm run start
+    command: yarn start
     ports:
-      - "3000:3000"
+      - "8000:8000"

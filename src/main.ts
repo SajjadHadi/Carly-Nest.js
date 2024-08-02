@@ -9,13 +9,12 @@ async function bootstrap() {
         .setTitle('Carly')
         .setDescription('The Carly API description')
         .setVersion('1.0')
-        .addTag('Carly')
         .build();
 
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docs', app, document);
 
-    await app.listen(3000);
+    await app.listen(8000);
 }
 
 bootstrap();

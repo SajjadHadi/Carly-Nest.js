@@ -5,6 +5,7 @@
 <img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Badge" >
 <img src="https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js Badge">
 <img src="https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white" alt="NPM Badge">
+<img src="https://img.shields.io/badge/Yarn-2C8EBB?style=for-the-badge&logo=yarn&logoColor=white" alt="NPM Badge">
 <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript Badge">
 <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="Nest.js Badge">
 <img src="https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="Sqlite Badge">
@@ -29,9 +30,22 @@ npm run start:dev
 
 # Run in Production Mode
 npm run start:prod
+npm start
 ```
 
-### Option 2 - Docker
+### Option 2 - Yarn
+Personaly, I've faced some issues using NPM during the last couple of years, So I prefer yarn to NPM. The commands are as follows:
+```bash
+yarn install
+
+# Run in Development Mode
+yarn run start:dev
+
+# Run in Production Mode
+yarn run start:prod
+yarn start
+```
+### Option 3 - Docker
 If you're familiar with Docker and have some experience already, this is the best option. Docker makes projects more organized and easier to maintain. So after installing Docker on your system, clone the project and enter following commands:
 
 ```bash

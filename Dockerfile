@@ -5,4 +5,4 @@ COPY .. /usr/src/carly/
 
 WORKDIR /usr/src/carly
 
-RUN npm install
+RUN yarn install
