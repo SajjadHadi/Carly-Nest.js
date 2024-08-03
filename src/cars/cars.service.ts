@@ -30,19 +30,17 @@ export class CarsService {
     }
 
     async create(createCarDto: CreateCarDto) {
-        const car = await this.databaseService.car.create({
+        return this.databaseService.car.create({
             data: createCarDto,
         });
-        return car;
     }
 
     async update(id: number, updateCarDto: UpdateCarDto) {
         try {
-            const car = await this.databaseService.car.update({
+            return this.databaseService.car.update({
                 where: { id },
                 data: updateCarDto,
             });
-            return car;
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
                 throw new NotFoundException(`Car with ID ${id} not found`);
@@ -53,11 +51,10 @@ export class CarsService {
 
     async updateImage(id: number, updateCarImageDto: UpdateCarImageDto) {
         try {
-            const car = await this.databaseService.car.update({
+            return this.databaseService.car.update({
                 where: { id },
                 data: updateCarImageDto,
             });
-            return car;
         } catch (error) {
             if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
                 throw new NotFoundException(`Car with ID ${id} not found`);
