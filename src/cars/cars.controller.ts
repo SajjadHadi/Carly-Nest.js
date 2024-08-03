@@ -29,11 +29,9 @@ import { QueryParserPipe } from '../common/pipes/query-parser.pipe';
 export class CarsController {
     constructor(private readonly carsService: CarsService) {}
 
-    // TODO: Implement filtering
     @Get()
     @UsePipes(QueryParserPipe)
     findAll(@Query() queryParamsDto: RawQueryParamsDto) {
-        console.log(queryParamsDto);
         return this.carsService.findAll(queryParamsDto);
     }
 
