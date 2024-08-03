@@ -14,3 +14,4 @@ services:
       - "8000:8000"
     volumes:
       - ./prisma/carly.db:/usr/src/carly/prisma/carly.db
+      - ./static:/usr/src/carly/static

@@ -9,12 +9,15 @@ import {
     ParseIntPipe,
     Post,
     Put,
+    UseInterceptors,
     ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { CarsService } from './cars.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import imageStorageConfig from '../config/imageStorageConfig';
 
 @Controller('cars')
 @ApiTags('Cars')
@@ -33,7 +36,16 @@ export class CarsController {
     }
 
     @Post()
-    create(@Body(ValidationPipe) createCarDto: CreateCarDto) {
+    @UseInterceptors(FileInterceptor('image', imageStorageConfig))
+    create(
+        @Body(
+            new ValidationPipe({
+                transform: true,
+                transformOptions: { enableImplicitConversion: true },
+            }),
+        )
+        createCarDto: CreateCarDto,
+    ) {
         return this.carsService.create(createCarDto);
     }
 

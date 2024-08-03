@@ -19,8 +19,8 @@ model Car {
   updatedAt       DateTime @updatedAt
   model           String
   brand           String
-  price           Decimal
-  discountedPrice Decimal
+  price           Int
+  discountedPrice Int
   manufactureYear Int
   topSpeed        Int
   type            String

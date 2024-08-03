@@ -9,7 +9,6 @@ import {
     IsInt,
     IsNotEmpty,
     IsString,
-    IsUrl,
     Max,
     MaxLength,
     Min,
@@ -32,13 +31,13 @@ export class CreateCarDto {
     @ApiProperty()
     @IsInt()
     @Min(0)
-    @Max(9_999_999)
+    @Max(9999999)
     price: number;
 
     @ApiProperty()
     @IsInt()
     @Min(0)
-    @Max(9_999_999)
+    @Max(9999999)
     discountedPrice: number;
 
     @ApiProperty()
@@ -75,7 +74,6 @@ export class CreateCarDto {
     description: string;
 
     @ApiProperty()
-    @IsUrl()
-    @MaxLength(512)
+    @IsString({ message: 'Image is required' })
     image: string;
 }
