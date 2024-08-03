@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateCarDto } from './dto/update-car.dto';
-import { CreateCarDto } from './dto/create-car.dto';
+import UpdateCarDto from './dto/update-car.dto';
+import CreateCarDto from './dto/create-car.dto';
 import { DatabaseService } from '../database/database.service';
 import { Prisma } from '@prisma/client';
+import UpdateCarImageDto from './dto/update-car-image.dto';
 
 @Injectable()
 export class CarsService {
@@ -23,23 +24,40 @@ export class CarsService {
     }
 
     async create(createCarDto: CreateCarDto) {
-        const prismaCreateCarDto: Prisma.CarCreateInput = { ...createCarDto };
         const car = await this.databaseService.car.create({
-            data: prismaCreateCarDto,
+            data: createCarDto,
         });
         return car;
     }
 
     async update(id: number, updateCarDto: UpdateCarDto) {
-        const prismaUpdateCarDto: Prisma.CarUpdateInput = { ...updateCarDto };
-        const car = await this.databaseService.car.update({
-            where: { id },
-            data: prismaUpdateCarDto,
-        });
-        if (!car) {
-            throw new NotFoundException(`Car with id ${id} not found`);
+        try {
+            const car = await this.databaseService.car.update({
+                where: { id },
+                data: updateCarDto,
+            });
+            return car;
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new NotFoundException(`Car with ID ${id} not found`);
+            }
+            throw error;
         }
-        return car;
+    }
+
+    async updateImage(id: number, updateCarImageDto: UpdateCarImageDto) {
+        try {
+            const car = await this.databaseService.car.update({
+                where: { id },
+                data: updateCarImageDto,
+            });
+            return car;
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new NotFoundException(`Car with ID ${id} not found`);
+            }
+            throw error;
+        }
     }
 
     async delete(id: number) {
@@ -47,12 +65,9 @@ export class CarsService {
             await this.databaseService.car.delete({
                 where: { id },
             });
-            return;
         } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                if (error.code === 'P2025') {
-                    throw new NotFoundException(`Car with ID ${id} not found`);
-                }
+            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+                throw new NotFoundException(`Car with ID ${id} not found`);
             }
             throw error;
         }

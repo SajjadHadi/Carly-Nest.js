@@ -15,7 +15,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateCarDto {
+class CreateCarDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
@@ -77,3 +77,5 @@ export class CreateCarDto {
     @IsString({ message: 'Image is required' })
     image: string;
 }
+
+export default CreateCarDto;
