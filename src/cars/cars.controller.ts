@@ -9,16 +9,20 @@ import {
     ParseIntPipe,
     Post,
     Put,
+    Query,
     UseInterceptors,
+    UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import CreateCarDto from './dto/create-car.dto';
 import UpdateCarDto from './dto/update-car.dto';
 import { CarsService } from './cars.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import imageStorageConfig from '../config/imageStorageConfig';
+import imageStorageConfig from '../common/utils/imageStorageConfig';
 import UpdateCarImageDto from './dto/update-car-image.dto';
+import RawQueryParamsDto from '../common/dto/raw-query-params.dto';
+import { QueryParserPipe } from '../common/pipes/query-parser.pipe';
 
 @Controller('cars')
 @ApiTags('Cars')
@@ -27,8 +31,10 @@ export class CarsController {
 
     // TODO: Implement filtering
     @Get()
-    findAll() {
-        return this.carsService.findAll();
+    @UsePipes(QueryParserPipe)
+    findAll(@Query() queryParamsDto: RawQueryParamsDto) {
+        console.log(queryParamsDto);
+        return this.carsService.findAll(queryParamsDto);
     }
 
     @Get(':id')
@@ -38,6 +44,7 @@ export class CarsController {
 
     @Post()
     @UseInterceptors(FileInterceptor('image', imageStorageConfig))
+    @ApiConsumes('multipart/form-data')
     create(
         @Body(
             new ValidationPipe({
@@ -60,6 +67,7 @@ export class CarsController {
 
     @Put(':id/image')
     @UseInterceptors(FileInterceptor('image', imageStorageConfig))
+    @ApiConsumes('multipart/form-data')
     updateImage(
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe({ transform: true, whitelist: true }))

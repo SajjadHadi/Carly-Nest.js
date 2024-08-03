@@ -5,12 +5,18 @@ import { DatabaseService } from '../database/database.service';
 import { Prisma } from '@prisma/client';
 import UpdateCarImageDto from './dto/update-car-image.dto';
 
+// import RawQueryParamsDto from '../common/dto/raw-query-params.dto';
+
 @Injectable()
 export class CarsService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async findAll() {
-        return this.databaseService.car.findMany();
+    async findAll(queryParamsDto: any) {
+        try {
+            return this.databaseService.car.findMany({ ...queryParamsDto });
+        } catch {
+            return [];
+        }
     }
 
     async findOne(id: number) {
