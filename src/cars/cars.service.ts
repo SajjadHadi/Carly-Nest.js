@@ -31,18 +31,30 @@ export class CarsService {
     }
 
     async update(id: number, updateCarDto: UpdateCarDto) {
-        const prismaUpdateUserDto: Prisma.CarUpdateInput = { ...updateCarDto };
-        const user = await this.databaseService.car.update({
+        const prismaUpdateCarDto: Prisma.CarUpdateInput = { ...updateCarDto };
+        const car = await this.databaseService.car.update({
             where: { id },
-            data: prismaUpdateUserDto,
+            data: prismaUpdateCarDto,
         });
-        if (!user) {
+        if (!car) {
             throw new NotFoundException(`Car with id ${id} not found`);
         }
-        return user;
+        return car;
     }
 
     async delete(id: number) {
-        return this.databaseService.car.delete({ where: { id } });
+        try {
+            await this.databaseService.car.delete({
+                where: { id },
+            });
+            return;
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2025') {
+                    throw new NotFoundException(`Car with ID ${id} not found`);
+                }
+            }
+            throw error;
+        }
     }
 }

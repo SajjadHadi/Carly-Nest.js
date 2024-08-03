@@ -3,6 +3,8 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
+    HttpStatus,
     Param,
     ParseIntPipe,
     Post,
@@ -43,6 +45,7 @@ export class CarsController {
         return this.carsService.update(id, updateCarDto);
     }
 
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
     remove(@Param('id', ParseIntPipe) id: number) {
         return this.carsService.delete(id);
