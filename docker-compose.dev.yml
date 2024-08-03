@@ -12,3 +12,5 @@ services:
           target: /usr/src/carly
     ports:
       - "8000:8000"
+    volumes:
+      - ./prisma/carly.db:/usr/src/carly/prisma/carly.db

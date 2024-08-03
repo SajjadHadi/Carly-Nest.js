@@ -9,18 +9,16 @@
 <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript Badge">
 <img src="https://img.shields.io/badge/nestjs-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="Nest.js Badge">
 <img src="https://img.shields.io/badge/Sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="Sqlite Badge">
-<img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL Badge">
-
+<img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white" alt="Sqlite Badge">
 
 ![Carly Thumbnail](./readme/Thumbnail.png)
 
 ## Introduction
-Carly is a project that I've designed for my mentees to gain more professional and real-world experience in frontend development. This project is the backend of Carly that can be cloned and run easily on a local system, so the mentees can test all the features of their frontend project. 
-
+Carly is a project I designed for my mentees to gain more professional, real-world experience in front-end development. This project is Carly's backend, easily cloned and run on a local system, allowing mentees to test all their frontend project features. It uses SQLite, as it's beginner-friendly and easy to set up. Why Docker? Simple: I love it! PostgreSQL would be an option, but I wanted beginners to focus on the frontend without database setup complexities. Docker is just mentioned here, not fully utilized. In future projects, I'll use PostgreSQL instead of SQLite. (SQLite's lack of enum support still surprises me! 😆)
 ## Installation
 
 ### Option 1 - NPM
-If you're new to backend development and not familiar with Docker, this is the best option. So clone the project and just run the installation command as follows:
+If you're new to backend development and not familiar with Docker, this is an excellent option. Clone the project and run the following installation command:
 
 ```bash
 npm install
@@ -34,7 +32,8 @@ npm start
 ```
 
 ### Option 2 - Yarn
-Personaly, I've faced some issues using NPM during the last couple of years, So I prefer yarn to NPM. The commands are as follows:
+Personally, I've encountered some issues using NPM over the past couple of years, so I prefer Yarn. The commands are as follows:
+
 ```bash
 yarn install
 
@@ -46,8 +45,7 @@ yarn run start:prod
 yarn start
 ```
 ### Option 3 - Docker
-If you're familiar with Docker and have some experience already, this is the best option. Docker makes projects more organized and easier to maintain. So after installing Docker on your system, clone the project and enter following commands:
-
+If you're familiar with Docker and have some experience, this is the best option. Docker enhances project organization and maintainability. After installing Docker on your system, clone the project and run the following commands:
 ```bash
 # Run in Development Mode
 docker-compose -f docker-compose.dev.yml up --build
