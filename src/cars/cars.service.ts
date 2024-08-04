@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import UpdateCarDto from './dto/update-car.dto';
-import CreateCarDto from './dto/create-car.dto';
-import { DatabaseService } from '../database/database.service';
 import { Prisma } from '@prisma/client';
-import UpdateCarImageDto from './dto/update-car-image.dto';
+import { DatabaseService } from '../database/database.service';
+import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarImageDto } from './dto/update-car-image.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 // import RawQueryParamsDto from '../common/dto/raw-query-params.dto';
 

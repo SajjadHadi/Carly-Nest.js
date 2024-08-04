@@ -1,21 +1,8 @@
-import {
-    CarConditionEnum,
-    CarFuelEnum,
-    CarTransmissionEnum,
-    CarTypeEnum,
-} from '../enums';
-import {
-    IsEnum,
-    IsInt,
-    IsNotEmpty,
-    IsString,
-    Max,
-    MaxLength,
-    Min,
-} from 'class-validator';
+import { CarConditionEnum, CarFuelEnum, CarTransmissionEnum, CarTypeEnum } from '../enums';
+import { IsEnum, IsInt, IsNotEmpty, IsString, Max, MaxLength, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-class CreateCarDto {
+export class CreateCarDto {
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
@@ -77,5 +64,3 @@ class CreateCarDto {
     @IsString({ message: 'Image is required' })
     image: string;
 }
-
-export default CreateCarDto;

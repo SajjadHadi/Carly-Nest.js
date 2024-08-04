@@ -1,6 +1,6 @@
 import { IsNumberString, IsOptional, IsString } from 'class-validator';
 
-class RawQueryParamsDto {
+export class RawQueryParamsDto {
     @IsOptional()
     @IsNumberString()
     page?: string;
@@ -17,5 +17,3 @@ class RawQueryParamsDto {
     @IsString()
     orderBy?: string;
 }
-
-export default RawQueryParamsDto;

@@ -14,15 +14,15 @@ import {
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
-import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
-import CreateCarDto from './dto/create-car.dto';
-import UpdateCarDto from './dto/update-car.dto';
-import { CarsService } from './cars.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import imageStorageConfig from '../common/utils/imageStorageConfig';
-import UpdateCarImageDto from './dto/update-car-image.dto';
-import RawQueryParamsDto from '../common/dto/raw-query-params.dto';
+import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { RawQueryParamsDto } from '../common/dto/raw-query-params.dto';
 import { QueryParserPipe } from '../common/pipes/query-parser.pipe';
+import imageStorageConfig from '../common/utils/imageStorageConfig';
+import { CarsService } from './cars.service';
+import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarImageDto } from './dto/update-car-image.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 
 @Controller('cars')
 @ApiTags('Cars')
