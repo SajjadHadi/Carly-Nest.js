@@ -29,6 +29,21 @@ import { QueryParserPipe } from '../common/pipes/query-parser.pipe';
 export class CarsController {
     constructor(private readonly carsService: CarsService) {}
 
+    @Post()
+    @UseInterceptors(FileInterceptor('image', imageStorageConfig))
+    @ApiConsumes('multipart/form-data')
+    create(
+        @Body(
+            new ValidationPipe({
+                transform: true,
+                transformOptions: { enableImplicitConversion: true },
+            }),
+        )
+        createCarDto: CreateCarDto,
+    ) {
+        return this.carsService.create(createCarDto);
+    }
+
     @Get()
     @UsePipes(QueryParserPipe)
     @ApiQuery({ name: 'where', required: false, description: 'Example: brand:toyota,model:yaris' })
@@ -47,21 +62,6 @@ export class CarsController {
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: number) {
         return this.carsService.findOne(id);
-    }
-
-    @Post()
-    @UseInterceptors(FileInterceptor('image', imageStorageConfig))
-    @ApiConsumes('multipart/form-data')
-    create(
-        @Body(
-            new ValidationPipe({
-                transform: true,
-                transformOptions: { enableImplicitConversion: true },
-            }),
-        )
-        createCarDto: CreateCarDto,
-    ) {
-        return this.carsService.create(createCarDto);
     }
 
     @Put(':id')
