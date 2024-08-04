@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CarsModule } from './cars/cars.module';
-import { DatabaseModule } from './database/database.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CarsModule } from './cars/cars.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
     imports: [
@@ -12,6 +13,7 @@ import { join } from 'path';
         }),
         CarsModule,
         DatabaseModule,
+        ContactsModule,
     ],
     controllers: [],
     providers: [],

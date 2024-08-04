@@ -30,3 +30,14 @@ model Car {
   description     String
   image           String
 }
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedat DateTime @updatedAt
+  firstName String
+  lastName  String
+  phone     String?
+  email     String
+  message   String
+}
