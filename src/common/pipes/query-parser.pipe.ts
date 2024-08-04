@@ -1,5 +1,6 @@
 import { Injectable, PipeTransform } from '@nestjs/common';
 import RawQueryParamsDto from '../dto/raw-query-params.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class QueryParserPipe implements PipeTransform {
@@ -19,10 +20,13 @@ export class QueryParserPipe implements PipeTransform {
         };
     }
 
-    private parseWhere(whereString: string | undefined): Record<string, string> {
+    private parseWhere(whereString: string | undefined): Prisma.CarWhereInput {
         if (!whereString) return {};
-        const wheres = whereString.split(',').map((item) => item.split(':'));
-        return Object.fromEntries(wheres);
+        const wheres = whereString.split(',').map((item) => {
+            const [field, value] = item.split(':');
+            return { [field]: { contains: value, startsWith: value, endsWith: value } };
+        });
+        return Object.assign({}, ...wheres);
     }
 
     private parseOrderBy(orderByString: string | undefined): Record<string, string>[] {

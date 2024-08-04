@@ -14,7 +14,7 @@ import {
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
 import CreateCarDto from './dto/create-car.dto';
 import UpdateCarDto from './dto/update-car.dto';
 import { CarsService } from './cars.service';
@@ -31,7 +31,16 @@ export class CarsController {
 
     @Get()
     @UsePipes(QueryParserPipe)
+    @ApiQuery({ name: 'where', required: false, description: 'Example: brand:toyota,model:yaris' })
+    @ApiQuery({ name: 'orderBy', required: false, description: 'An integer number.' })
+    @ApiQuery({ name: 'page', required: false, description: 'An integer number.' })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        description: 'Example: id,topSpeed:desc,year:asc',
+    })
     findAll(@Query() queryParamsDto: RawQueryParamsDto) {
+        console.log(queryParamsDto);
         return this.carsService.findAll(queryParamsDto);
     }
 
