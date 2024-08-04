@@ -1,5 +1,5 @@
 import { Injectable, PipeTransform } from '@nestjs/common';
-import RawQueryParamsDto from '../dto/raw-query-params.dto';
+import { RawQueryParamsDto } from '../dto/raw-query-params.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()

@@ -13,7 +13,7 @@ export class CarsService {
 
     async findAll(queryParamsDto: any) {
         try {
-            return this.databaseService.car.findMany({ ...queryParamsDto });
+            return await this.databaseService.car.findMany({ ...queryParamsDto });
         } catch {
             return [];
         }
@@ -37,7 +37,7 @@ export class CarsService {
 
     async update(id: number, updateCarDto: UpdateCarDto) {
         try {
-            return this.databaseService.car.update({
+            return await this.databaseService.car.update({
                 where: { id },
                 data: updateCarDto,
             });
@@ -51,7 +51,7 @@ export class CarsService {
 
     async updateImage(id: number, updateCarImageDto: UpdateCarImageDto) {
         try {
-            return this.databaseService.car.update({
+            return await this.databaseService.car.update({
                 where: { id },
                 data: updateCarImageDto,
             });
