@@ -29,6 +29,9 @@ model Car {
   fuel            String
   description     String
   image           String
+  savedBy         User[]   @relation("savedCars")
+  createdBy       User     @relation("createdCars", fields: [userId], references: [id])
+  userId          Int
 }
 
 model Contact {
@@ -40,4 +43,15 @@ model Contact {
   phone     String?
   email     String
   message   String
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  username     String   @unique
+  email        String   @unique
+  hashPassword String
+  createdCars  Car[]    @relation("createdCars")
+  savedCars    Car[]    @relation("savedCars")
 }

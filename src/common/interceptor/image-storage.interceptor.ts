@@ -1,7 +1,7 @@
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 
-export default {
+export const imageStorageInterceptor = {
     storage: diskStorage({
         destination: join(__dirname, '..', '..', 'static', 'images'),
         filename: (req, file, cb) => {

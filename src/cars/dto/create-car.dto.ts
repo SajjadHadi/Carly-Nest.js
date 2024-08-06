@@ -1,6 +1,6 @@
-import { CarConditionEnum, CarFuelEnum, CarTransmissionEnum, CarTypeEnum } from '../enums';
-import { IsEnum, IsInt, IsNotEmpty, IsString, Max, MaxLength, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsInt, IsNotEmpty, IsString, Max, MaxLength, Min } from 'class-validator';
+import { CarConditionEnum, CarFuelEnum, CarTransmissionEnum, CarTypeEnum } from '../enums';
 
 export class CreateCarDto {
     @ApiProperty()
