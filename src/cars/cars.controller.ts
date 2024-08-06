@@ -7,8 +7,8 @@ import {
     HttpStatus,
     Param,
     ParseIntPipe,
+    Patch,
     Post,
-    Put,
     Query,
     UseInterceptors,
     UsePipes,
@@ -32,7 +32,7 @@ export class CarsController {
     @Post()
     @UseInterceptors(FileInterceptor('image', imageStorageConfig))
     @ApiConsumes('multipart/form-data')
-    create(
+    async create(
         @Body(
             new ValidationPipe({
                 transform: true,
@@ -41,7 +41,7 @@ export class CarsController {
         )
         createCarDto: CreateCarDto,
     ) {
-        return this.carsService.create(createCarDto);
+        return await this.carsService.create(createCarDto);
     }
 
     @Get()
@@ -54,38 +54,38 @@ export class CarsController {
         required: false,
         description: 'Example: id,topSpeed:desc,year:asc',
     })
-    findAll(@Query() queryParamsDto: RawQueryParamsDto) {
+    async findAll(@Query() queryParamsDto: RawQueryParamsDto) {
         console.log(queryParamsDto);
-        return this.carsService.findAll(queryParamsDto);
+        return await this.carsService.findAll(queryParamsDto);
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.carsService.findOne(id);
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        return await this.carsService.findOne(id);
     }
 
-    @Put(':id')
-    update(
+    @Patch(':id')
+    async update(
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe({ transform: true, whitelist: true })) updateCarDto: UpdateCarDto,
     ) {
-        return this.carsService.update(id, updateCarDto);
+        return await this.carsService.update(id, updateCarDto);
     }
 
-    @Put(':id/image')
+    @Patch(':id/image')
     @UseInterceptors(FileInterceptor('image', imageStorageConfig))
     @ApiConsumes('multipart/form-data')
-    updateImage(
+    async updateImage(
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe({ transform: true, whitelist: true }))
         updateCarImageDto: UpdateCarImageDto,
     ) {
-        return this.carsService.updateImage(id, updateCarImageDto);
+        return await this.carsService.updateImage(id, updateCarImageDto);
     }
 
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number) {
-        return this.carsService.delete(id);
+    async remove(@Param('id', ParseIntPipe) id: number) {
+        return await this.carsService.delete(id);
     }
 }

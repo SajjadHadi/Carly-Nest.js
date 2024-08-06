@@ -31,7 +31,7 @@ export class CarsService {
 
     async create(createCarDto: CreateCarDto) {
         return this.databaseService.car.create({
-            data: createCarDto,
+            data: createCarDto as Prisma.CarCreateInput,
         });
     }
 
