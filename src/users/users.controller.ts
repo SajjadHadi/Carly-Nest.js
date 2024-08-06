@@ -2,6 +2,8 @@ import { Body, Controller, Get, Post, UseGuards, ValidationPipe } from '@nestjs/
 import { ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
+import { ParseQuery } from '../common/decorator';
+import { RawQueryParamsDto } from '../common/dto';
 import { SaveCarDTO } from './dto';
 import { UsersService } from './users.service';
 
@@ -17,8 +19,9 @@ export class UsersController {
     }
 
     @Get('/my-cars')
-    async getMyCars(@GetUser('id') userId: number) {
-        return this.usersService.getMyCars(userId);
+    async getMyCars(@GetUser('id') userId: number, @ParseQuery() query: RawQueryParamsDto) {
+        console.log(userId, query);
+        return this.usersService.getMyCars(userId, query);
     }
 
     @Post('/save-car')
@@ -27,7 +30,8 @@ export class UsersController {
     }
 
     @Get('/get-saved-cars')
-    async getSavedCars(@GetUser('id') userId: number) {
-        return this.usersService.getSavedCars(userId);
+    async getSavedCars(@GetUser('id') userId: number, @ParseQuery() query: RawQueryParamsDto) {
+        console.log(query);
+        return this.usersService.getSavedCars(userId, query);
     }
 }
