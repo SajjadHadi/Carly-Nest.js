@@ -16,7 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../auth/decorator';
-import { JwtGuard } from '../auth/guard';
+import { JwtGuard, OptionalJwtAuthGuard } from '../auth/guard';
 import { ParseQuery } from '../common/decorator';
 import { RawQueryParamsDto } from '../common/dto';
 import { imageStorageInterceptor } from '../common/interceptor';
@@ -45,10 +45,13 @@ export class CarsController {
         return await this.carsService.create(userId, createCarDto);
     }
 
+    @UseGuards(OptionalJwtAuthGuard)
     @Get()
-    async findAll(@ParseQuery() queryParamsDto: RawQueryParamsDto) {
-        console.log(queryParamsDto);
-        return await this.carsService.findAll(queryParamsDto);
+    async findAll(
+        @ParseQuery() queryParamsDto: RawQueryParamsDto,
+        @GetUser() user: any | undefined,
+    ) {
+        return await this.carsService.findAll(queryParamsDto, user);
     }
 
     @Get(':id')
