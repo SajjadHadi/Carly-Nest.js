@@ -23,6 +23,7 @@ export class CarsService {
         if (!car) {
             throw new NotFoundException(`Car with id ${id} not found`);
         }
+        delete car.userId;
         return car;
     }
 
