@@ -9,19 +9,17 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Query,
     UseGuards,
     UseInterceptors,
-    UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard } from '../auth/guard';
+import { ParseQuery } from '../common/decorator';
 import { RawQueryParamsDto } from '../common/dto';
 import { imageStorageInterceptor } from '../common/interceptor';
-import { QueryParserPipe } from '../common/pipe';
 import { CarsService } from './cars.service';
 import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
 
@@ -48,16 +46,7 @@ export class CarsController {
     }
 
     @Get()
-    @UsePipes(QueryParserPipe)
-    @ApiQuery({ name: 'where', required: false, description: 'Example: brand:toyota,model:yaris' })
-    @ApiQuery({ name: 'orderBy', required: false, description: 'An integer number.' })
-    @ApiQuery({ name: 'page', required: false, description: 'An integer number.' })
-    @ApiQuery({
-        name: 'limit',
-        required: false,
-        description: 'Example: id,topSpeed:desc,year:asc',
-    })
-    async findAll(@Query() queryParamsDto: RawQueryParamsDto) {
+    async findAll(@ParseQuery() queryParamsDto: RawQueryParamsDto) {
         console.log(queryParamsDto);
         return await this.carsService.findAll(queryParamsDto);
     }

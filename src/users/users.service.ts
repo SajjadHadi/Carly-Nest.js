@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    ForbiddenException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from '../database/database.service';
 
@@ -13,8 +18,17 @@ export class UsersService {
         });
     }
 
-    async getMyCars(userId: number) {
-        return this.databaseService.car.findMany({ where: { userId } });
+    async getMyCars(userId: number, query: any) {
+        try {
+            return this.databaseService.car.findMany({
+                take: query.take,
+                skip: query.skip,
+                orderBy: query.orderBy,
+                where: { ...query.where, userId },
+            });
+        } catch {
+            throw new BadRequestException('Bad Request!');
+        }
     }
 
     async saveCar(userId: number, carId: number) {
@@ -50,14 +64,22 @@ export class UsersService {
         }
     }
 
-    async getSavedCars(userId: number) {
-        return this.databaseService.user
-            .findUnique({
+    async getSavedCars(userId: number, query: any) {
+        try {
+            const cars = await this.databaseService.user.findMany({
                 where: { id: userId },
                 select: {
-                    savedCars: true,
+                    savedCars: {
+                        skip: query.skip,
+                        orderBy: query.orderBy,
+                        take: query.take,
+                        where: { ...query.where },
+                    },
                 },
-            })
-            .savedCars();
+            });
+            return cars[0].savedCars;
+        } catch {
+            throw new BadRequestException('Bad Request!');
+        }
     }
 }
