@@ -20,7 +20,6 @@ export class UsersController {
 
     @Get('/my-cars')
     async getMyCars(@GetUser('id') userId: number, @ParseQuery() query: RawQueryParamsDto) {
-        console.log(userId, query);
         return this.usersService.getMyCars(userId, query);
     }
 
@@ -31,7 +30,6 @@ export class UsersController {
 
     @Get('/get-saved-cars')
     async getSavedCars(@GetUser('id') userId: number, @ParseQuery() query: RawQueryParamsDto) {
-        console.log(query);
         return this.usersService.getSavedCars(userId, query);
     }
 }

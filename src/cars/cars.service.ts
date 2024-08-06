@@ -1,4 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { RawQueryParamsDto } from '../common/dto';
+import { excludeFieldUtil } from '../common/utils';
 import { DatabaseService } from '../database/database.service';
 import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
 
@@ -8,10 +10,22 @@ import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
 export class CarsService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async findAll(queryParamsDto: any) {
+    async findAll(queryParamsDto: RawQueryParamsDto, user?: any) {
         try {
-            return await this.databaseService.car.findMany({ ...queryParamsDto });
-        } catch {
+            const allItems = await this.databaseService.car.findMany({
+                include: { savedBy: true },
+                ...queryParamsDto,
+            });
+
+            return allItems.map((item) => {
+                const isSaved = user?.id
+                    ? item.savedBy.some((savedUser) => savedUser.id == user.id)
+                    : false;
+
+                return { ...item, savedBy: isSaved };
+            });
+        } catch (error) {
+            console.error('Error in findAll:', error);
             return [];
         }
     }
@@ -19,25 +33,24 @@ export class CarsService {
     async findOne(id: number) {
         const car = await this.databaseService.car.findUnique({
             where: { id },
+            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
         if (!car) {
             throw new NotFoundException(`Car with id ${id} not found`);
         }
-        delete car.userId;
         return car;
     }
 
     async create(userId: number, createCarDto: CreateCarDto) {
-        const car = await this.databaseService.car.create({
+        return this.databaseService.car.create({
             data: {
                 createdBy: {
                     connect: { id: userId },
                 },
                 ...createCarDto,
             },
+            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
-        delete car.userId;
-        return car;
     }
 
     async update(userId: number, id: number, updateCarDto: UpdateCarDto) {
@@ -49,6 +62,7 @@ export class CarsService {
         return this.databaseService.car.update({
             where: { id },
             data: updateCarDto,
+            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
     }
 
@@ -61,6 +75,7 @@ export class CarsService {
         return this.databaseService.car.update({
             where: { id },
             data: updateCarImageDto,
+            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
     }
 

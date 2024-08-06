@@ -5,6 +5,7 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { excludeFieldUtil } from '../common/utils';
 import { DatabaseService } from '../database/database.service';
 
 @Injectable()
@@ -25,6 +26,7 @@ export class UsersService {
                 skip: query.skip,
                 orderBy: query.orderBy,
                 where: { ...query.where, userId },
+                select: excludeFieldUtil(this.databaseService.car, ['userId']),
             });
         } catch {
             throw new BadRequestException('Bad Request!');
@@ -74,6 +76,7 @@ export class UsersService {
                         orderBy: query.orderBy,
                         take: query.take,
                         where: { ...query.where },
+                        select: excludeFieldUtil(this.databaseService.car, ['userId']),
                     },
                 },
             });
