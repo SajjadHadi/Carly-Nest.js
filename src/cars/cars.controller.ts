@@ -7,32 +7,35 @@ import {
     HttpStatus,
     Param,
     ParseIntPipe,
+    Patch,
     Post,
-    Put,
     Query,
+    UseGuards,
     UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { RawQueryParamsDto } from '../common/dto/raw-query-params.dto';
-import { QueryParserPipe } from '../common/pipes/query-parser.pipe';
-import imageStorageConfig from '../common/utils/imageStorageConfig';
+import { GetUser } from '../auth/decorator';
+import { JwtGuard } from '../auth/guard';
+import { RawQueryParamsDto } from '../common/dto';
+import { imageStorageInterceptor } from '../common/interceptor';
+import { QueryParserPipe } from '../common/pipe';
 import { CarsService } from './cars.service';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarImageDto } from './dto/update-car-image.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
+import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
 
 @Controller('cars')
 @ApiTags('Cars')
 export class CarsController {
     constructor(private readonly carsService: CarsService) {}
 
+    @UseGuards(JwtGuard)
     @Post()
-    @UseInterceptors(FileInterceptor('image', imageStorageConfig))
+    @UseInterceptors(FileInterceptor('image', imageStorageInterceptor))
     @ApiConsumes('multipart/form-data')
-    create(
+    async create(
+        @GetUser('id') userId: number,
         @Body(
             new ValidationPipe({
                 transform: true,
@@ -41,7 +44,7 @@ export class CarsController {
         )
         createCarDto: CreateCarDto,
     ) {
-        return this.carsService.create(createCarDto);
+        return await this.carsService.create(userId, createCarDto);
     }
 
     @Get()
@@ -54,38 +57,43 @@ export class CarsController {
         required: false,
         description: 'Example: id,topSpeed:desc,year:asc',
     })
-    findAll(@Query() queryParamsDto: RawQueryParamsDto) {
+    async findAll(@Query() queryParamsDto: RawQueryParamsDto) {
         console.log(queryParamsDto);
-        return this.carsService.findAll(queryParamsDto);
+        return await this.carsService.findAll(queryParamsDto);
     }
 
     @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.carsService.findOne(id);
+    async findOne(@Param('id', ParseIntPipe) id: number) {
+        return await this.carsService.findOne(id);
     }
 
-    @Put(':id')
-    update(
+    @UseGuards(JwtGuard)
+    @Patch(':id')
+    async update(
+        @GetUser('id') userId: number,
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe({ transform: true, whitelist: true })) updateCarDto: UpdateCarDto,
     ) {
-        return this.carsService.update(id, updateCarDto);
+        return await this.carsService.update(userId, id, updateCarDto);
     }
 
-    @Put(':id/image')
-    @UseInterceptors(FileInterceptor('image', imageStorageConfig))
+    @UseGuards(JwtGuard)
+    @Patch(':id/image')
+    @UseInterceptors(FileInterceptor('image', imageStorageInterceptor))
     @ApiConsumes('multipart/form-data')
-    updateImage(
+    async updateImage(
+        @GetUser('id') userId: number,
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe({ transform: true, whitelist: true }))
         updateCarImageDto: UpdateCarImageDto,
     ) {
-        return this.carsService.updateImage(id, updateCarImageDto);
+        return await this.carsService.updateImage(userId, id, updateCarImageDto);
     }
 
+    @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number) {
-        return this.carsService.delete(id);
+    async remove(@GetUser('id') userId: number, @Param('id', ParseIntPipe) id: number) {
+        return await this.carsService.delete(userId, id);
     }
 }

@@ -12,7 +12,7 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
 import { ContactsService } from './contacts.service';
-import { CreateContactDto } from './dto/create-contact.dto';
+import { CreateContactDto } from './dto';
 
 @Controller('contacts')
 @ApiTags('Contacts')

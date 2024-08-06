@@ -1,11 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarImageDto } from './dto/update-car-image.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
+import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
 
-// import RawQueryParamsDto from '../common/dto/raw-query-params.dto';
+// import { RawQueryParamsDto } from '../common/dto';
 
 @Injectable()
 export class CarsService {
@@ -26,53 +23,53 @@ export class CarsService {
         if (!car) {
             throw new NotFoundException(`Car with id ${id} not found`);
         }
+        delete car.userId;
         return car;
     }
 
-    async create(createCarDto: CreateCarDto) {
-        return this.databaseService.car.create({
-            data: createCarDto,
+    async create(userId: number, createCarDto: CreateCarDto) {
+        const car = await this.databaseService.car.create({
+            data: {
+                createdBy: {
+                    connect: { id: userId },
+                },
+                ...createCarDto,
+            },
+        });
+        delete car.userId;
+        return car;
+    }
+
+    async update(userId: number, id: number, updateCarDto: UpdateCarDto) {
+        const car = await this.databaseService.car.findUnique({ where: { id } });
+
+        if (!car || car.userId !== userId) {
+            throw new ForbiddenException(`Access to resource denied.`);
+        }
+        return this.databaseService.car.update({
+            where: { id },
+            data: updateCarDto,
         });
     }
 
-    async update(id: number, updateCarDto: UpdateCarDto) {
-        try {
-            return await this.databaseService.car.update({
-                where: { id },
-                data: updateCarDto,
-            });
-        } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-                throw new NotFoundException(`Car with ID ${id} not found`);
-            }
-            throw error;
+    async updateImage(userId: number, id: number, updateCarImageDto: UpdateCarImageDto) {
+        const car = await this.databaseService.car.findUnique({ where: { id } });
+
+        if (!car || car.userId !== userId) {
+            throw new ForbiddenException(`Access to resource denied.`);
         }
+        return this.databaseService.car.update({
+            where: { id },
+            data: updateCarImageDto,
+        });
     }
 
-    async updateImage(id: number, updateCarImageDto: UpdateCarImageDto) {
-        try {
-            return await this.databaseService.car.update({
-                where: { id },
-                data: updateCarImageDto,
-            });
-        } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-                throw new NotFoundException(`Car with ID ${id} not found`);
-            }
-            throw error;
-        }
-    }
+    async delete(userId: number, id: number) {
+        const car = await this.databaseService.car.findUnique({ where: { id } });
 
-    async delete(id: number) {
-        try {
-            await this.databaseService.car.delete({
-                where: { id },
-            });
-        } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-                throw new NotFoundException(`Car with ID ${id} not found`);
-            }
-            throw error;
+        if (!car || car.userId !== userId) {
+            throw new ForbiddenException(`Access to resource denied.`);
         }
+        return this.databaseService.car.delete({ where: { id } });
     }
 }
