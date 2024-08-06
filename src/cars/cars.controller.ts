@@ -11,10 +11,10 @@ import {
     Post,
     UseGuards,
     UseInterceptors,
-    ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { Car, User } from '@prisma/client';
 import { GetUser } from '../auth/decorator';
 import { JwtGuard, OptionalJwtAuthGuard } from '../auth/guard';
 import { ParseQuery } from '../common/decorator';
@@ -22,6 +22,7 @@ import { RawQueryParamsDto } from '../common/dto';
 import { imageStorageInterceptor } from '../common/interceptor';
 import { CarsService } from './cars.service';
 import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
+import { CarWithSavedByLabel } from './types';
 
 @Controller('cars')
 @ApiTags('Cars')
@@ -32,16 +33,7 @@ export class CarsController {
     @Post()
     @UseInterceptors(FileInterceptor('image', imageStorageInterceptor))
     @ApiConsumes('multipart/form-data')
-    async create(
-        @GetUser('id') userId: number,
-        @Body(
-            new ValidationPipe({
-                transform: true,
-                transformOptions: { enableImplicitConversion: true },
-            }),
-        )
-        createCarDto: CreateCarDto,
-    ) {
+    async create(@GetUser('id') userId: number, @Body() createCarDto: CreateCarDto): Promise<Partial<Car>> {
         return await this.carsService.create(userId, createCarDto);
     }
 
@@ -49,13 +41,13 @@ export class CarsController {
     @Get()
     async findAll(
         @ParseQuery() queryParamsDto: RawQueryParamsDto,
-        @GetUser() user: any | undefined,
-    ) {
-        return await this.carsService.findAll(queryParamsDto, user);
+        @GetUser('id') userId: number | undefined,
+    ): Promise<CarWithSavedByLabel[]> {
+        return await this.carsService.findAll(queryParamsDto, userId);
     }
 
     @Get(':id')
-    async findOne(@Param('id', ParseIntPipe) id: number) {
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<Omit<Car, 'userId'>> {
         return await this.carsService.findOne(id);
     }
 
@@ -64,8 +56,8 @@ export class CarsController {
     async update(
         @GetUser('id') userId: number,
         @Param('id', ParseIntPipe) id: number,
-        @Body(new ValidationPipe({ transform: true, whitelist: true })) updateCarDto: UpdateCarDto,
-    ) {
+        @Body() updateCarDto: UpdateCarDto,
+    ): Promise<Partial<Car>> {
         return await this.carsService.update(userId, id, updateCarDto);
     }
 
@@ -76,16 +68,15 @@ export class CarsController {
     async updateImage(
         @GetUser('id') userId: number,
         @Param('id', ParseIntPipe) id: number,
-        @Body(new ValidationPipe({ transform: true, whitelist: true }))
-        updateCarImageDto: UpdateCarImageDto,
-    ) {
+        @Body() updateCarImageDto: UpdateCarImageDto,
+    ): Promise<Omit<Car, 'userId'>> {
         return await this.carsService.updateImage(userId, id, updateCarImageDto);
     }
 
     @UseGuards(JwtGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @Delete(':id')
-    async remove(@GetUser('id') userId: number, @Param('id', ParseIntPipe) id: number) {
+    async remove(@GetUser('id') userId: number, @Param('id', ParseIntPipe) id: number): Promise<void> {
         return await this.carsService.delete(userId, id);
     }
 }

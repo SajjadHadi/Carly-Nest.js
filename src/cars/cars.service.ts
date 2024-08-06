@@ -1,90 +1,80 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Car } from '@prisma/client';
 import { RawQueryParamsDto } from '../common/dto';
-import { excludeFieldUtil } from '../common/utils';
+import { assignSavedByLabel, omitKeys } from '../common/utils';
 import { DatabaseService } from '../database/database.service';
 import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
-
-// import { RawQueryParamsDto } from '../common/dto';
+import { CarWithSavedByLabel } from './types';
 
 @Injectable()
 export class CarsService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async findAll(queryParamsDto: RawQueryParamsDto, user?: any) {
+    async findAll(queryParamsDto: RawQueryParamsDto, userId?: number): Promise<CarWithSavedByLabel[]> {
         try {
-            const allItems = await this.databaseService.car.findMany({
+            const cars = await this.databaseService.car.findMany({
                 include: { savedBy: true },
                 ...queryParamsDto,
             });
-
-            return allItems.map((item) => {
-                const isSaved = user?.id
-                    ? item.savedBy.some((savedUser) => savedUser.id == user.id)
-                    : false;
-
-                return { ...item, savedBy: isSaved };
-            });
-        } catch (error) {
-            console.error('Error in findAll:', error);
+            return assignSavedByLabel(cars, userId);
+        } catch {
             return [];
         }
     }
 
-    async findOne(id: number) {
-        const car = await this.databaseService.car.findUnique({
-            where: { id },
-            select: excludeFieldUtil(this.databaseService.car, ['userId']),
-        });
+    async findOne(id: number): Promise<Omit<Car, 'userId'>> {
+        const car = await this.databaseService.car.findUnique({ where: { id } });
         if (!car) {
             throw new NotFoundException(`Car with id ${id} not found`);
         }
-        return car;
+        return omitKeys(car, ['userId']);
     }
 
-    async create(userId: number, createCarDto: CreateCarDto) {
-        return this.databaseService.car.create({
+    async create(userId: number, createCarDto: CreateCarDto): Promise<Omit<Car, 'userId'>> {
+        const car = await this.databaseService.car.create({
             data: {
                 createdBy: {
                     connect: { id: userId },
                 },
                 ...createCarDto,
             },
-            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
+        return omitKeys(car, ['userId']);
     }
 
-    async update(userId: number, id: number, updateCarDto: UpdateCarDto) {
+    async update(userId: number, id: number, updateCarDto: UpdateCarDto): Promise<Omit<Car, 'userId'>> {
         const car = await this.databaseService.car.findUnique({ where: { id } });
 
         if (!car || car.userId !== userId) {
             throw new ForbiddenException(`Access to resource denied.`);
         }
-        return this.databaseService.car.update({
+        const updatedCar = await this.databaseService.car.update({
             where: { id },
             data: updateCarDto,
-            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
+        return omitKeys(updatedCar, ['userId']);
     }
 
-    async updateImage(userId: number, id: number, updateCarImageDto: UpdateCarImageDto) {
+    async updateImage(userId: number, id: number, updateCarImageDto: UpdateCarImageDto): Promise<Omit<Car, 'userId'>> {
         const car = await this.databaseService.car.findUnique({ where: { id } });
 
         if (!car || car.userId !== userId) {
             throw new ForbiddenException(`Access to resource denied.`);
         }
-        return this.databaseService.car.update({
+        const updatedCar = await this.databaseService.car.update({
             where: { id },
             data: updateCarImageDto,
-            select: excludeFieldUtil(this.databaseService.car, ['userId']),
         });
+        return omitKeys(updatedCar, ['userId']);
     }
 
-    async delete(userId: number, id: number) {
+    async delete(userId: number, id: number): Promise<void> {
         const car = await this.databaseService.car.findUnique({ where: { id } });
 
         if (!car || car.userId !== userId) {
             throw new ForbiddenException(`Access to resource denied.`);
         }
-        return this.databaseService.car.delete({ where: { id } });
+        await this.databaseService.car.delete({ where: { id } });
+        return;
     }
 }

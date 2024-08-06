@@ -19,6 +19,7 @@ export const ParseQuery = createParamDecorator(async (data: unknown, ctx: Execut
 });
 
 // TODO: fix the conflict between boolean and number in conversion
+// TODO: support le, ge, etc operations in numeric fields
 function parseWhere(whereString: string | undefined): Prisma.CarWhereInput {
     if (!whereString) return {};
     const wheres = whereString.split(',').map((item) => {
