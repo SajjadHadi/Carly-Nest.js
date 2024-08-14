@@ -1,9 +1,9 @@
-import { Car, User } from '@prisma/client';
+import { Car, SavedCarItem } from '@prisma/client';
 
-export interface CarWithSavedByLabel extends Omit<Car, 'userId'> {
+export interface CarWithSavedByLabel extends Car {
     savedBy: boolean;
 }
 
-export interface CarWithSavedByUser extends Omit<Car, 'userId'> {
-    savedBy: User[];
+export interface CarWithSavedByUser extends Car {
+    savedBy: SavedCarItem[];
 }

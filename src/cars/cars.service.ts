@@ -1,36 +1,27 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { Car } from '@prisma/client';
+import { plainToInstance } from 'class-transformer';
 import { RawQueryParamsDto } from '../common/dto';
-import { assignSavedByLabel, omitKeys } from '../common/utils';
+import { assignSavedByLabel } from '../common/utils';
 import { DatabaseService } from '../database/database.service';
-import { CreateCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
-import { CarWithSavedByLabel } from './types';
+import { CreateCarDto, GetCarDto, UpdateCarDto, UpdateCarImageDto } from './dto';
 
 @Injectable()
 export class CarsService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async findAll(queryParamsDto: RawQueryParamsDto, userId?: number): Promise<CarWithSavedByLabel[]> {
+    async findAll(queryParamsDto: RawQueryParamsDto, userId?: number): Promise<GetCarDto[]> {
         try {
             const cars = await this.databaseService.car.findMany({
                 include: { savedBy: true },
                 ...queryParamsDto,
             });
-            return assignSavedByLabel(cars, userId);
+            return plainToInstance(GetCarDto, assignSavedByLabel(cars, userId), { excludeExtraneousValues: true });
         } catch {
             return [];
         }
     }
 
-    async findOne(id: number): Promise<Omit<Car, 'userId'>> {
-        const car = await this.databaseService.car.findUnique({ where: { id } });
-        if (!car) {
-            throw new NotFoundException(`Car with id ${id} not found`);
-        }
-        return omitKeys(car, ['userId']);
-    }
-
-    async create(userId: number, createCarDto: CreateCarDto): Promise<Omit<Car, 'userId'>> {
+    async create(userId: number, createCarDto: CreateCarDto): Promise<GetCarDto> {
         const car = await this.databaseService.car.create({
             data: {
                 createdBy: {
@@ -39,41 +30,41 @@ export class CarsService {
                 ...createCarDto,
             },
         });
-        return omitKeys(car, ['userId']);
+        return plainToInstance(GetCarDto, car, { excludeExtraneousValues: true });
     }
 
-    async update(userId: number, id: number, updateCarDto: UpdateCarDto): Promise<Omit<Car, 'userId'>> {
+    async findOne(id: number): Promise<GetCarDto> {
         const car = await this.databaseService.car.findUnique({ where: { id } });
+        if (!car) throw new NotFoundException(`Car with id ${id} not found`);
+        return plainToInstance(GetCarDto, car, { excludeExtraneousValues: true });
+    }
 
-        if (!car || car.userId !== userId) {
-            throw new ForbiddenException(`Access to resource denied.`);
-        }
+    async update(userId: number, id: number, updateCarDto: UpdateCarDto): Promise<GetCarDto> {
+        // TODO: Make this part reusable
+        const car = await this.databaseService.car.findUnique({ where: { id } });
+        if (!car || car.userId !== userId) throw new ForbiddenException(`Access to resource denied.`);
+
         const updatedCar = await this.databaseService.car.update({
             where: { id },
             data: updateCarDto,
         });
-        return omitKeys(updatedCar, ['userId']);
+        return plainToInstance(GetCarDto, updatedCar, { excludeExtraneousValues: true });
     }
 
-    async updateImage(userId: number, id: number, updateCarImageDto: UpdateCarImageDto): Promise<Omit<Car, 'userId'>> {
+    async updateImage(userId: number, id: number, updateCarImageDto: UpdateCarImageDto): Promise<GetCarDto> {
         const car = await this.databaseService.car.findUnique({ where: { id } });
+        if (!car || car.userId !== userId) throw new ForbiddenException(`Access to resource denied.`);
 
-        if (!car || car.userId !== userId) {
-            throw new ForbiddenException(`Access to resource denied.`);
-        }
         const updatedCar = await this.databaseService.car.update({
             where: { id },
             data: updateCarImageDto,
         });
-        return omitKeys(updatedCar, ['userId']);
+        return plainToInstance(GetCarDto, updatedCar, { excludeExtraneousValues: true });
     }
 
     async delete(userId: number, id: number): Promise<void> {
         const car = await this.databaseService.car.findUnique({ where: { id } });
-
-        if (!car || car.userId !== userId) {
-            throw new ForbiddenException(`Access to resource denied.`);
-        }
+        if (!car || car.userId !== userId) throw new ForbiddenException(`Access to resource denied.`);
         await this.databaseService.car.delete({ where: { id } });
         return;
     }
