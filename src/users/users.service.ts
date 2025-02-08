@@ -1,86 +1,53 @@
-import {
-    BadRequestException,
-    ForbiddenException,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
-import { Prisma } from '@prisma/client';
-import { excludeFieldUtil } from '../common/utils';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { GetCarDto } from '../cars/dto';
+import { RawQueryParamsDto } from '../common/dto';
 import { DatabaseService } from '../database/database.service';
+import { GetMe } from './dto';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly databaseService: DatabaseService) {}
 
-    async getMe(userId: number) {
-        return this.databaseService.user.findUnique({
-            where: { id: userId },
-            select: { hashPassword: false, id: true, username: true, email: true },
-        });
+    async getMe(userId: number): Promise<GetMe> {
+        const me = await this.databaseService.user.findUnique({ where: { id: userId } });
+        return plainToInstance(GetMe, me, { excludeExtraneousValues: true });
     }
 
-    async getMyCars(userId: number, query: any) {
+    async getMyCars(userId: number, query: RawQueryParamsDto): Promise<GetCarDto[]> {
         try {
-            return this.databaseService.car.findMany({
-                take: query.take,
-                skip: query.skip,
-                orderBy: query.orderBy,
-                where: { ...query.where, userId },
-                select: excludeFieldUtil(this.databaseService.car, ['userId']),
-            });
+            const cars = await this.databaseService.car.findMany({ ...query, where: { ...query.where, userId } });
+            return plainToInstance(GetCarDto, cars, { excludeExtraneousValues: true });
         } catch {
             throw new BadRequestException('Bad Request!');
         }
     }
 
-    async saveCar(userId: number, carId: number) {
-        try {
-            const car = await this.databaseService.car.findUnique({
-                where: { id: carId },
-            });
+    async saveCar(userId: number, carId: number): Promise<{ message: string }> {
+        const car = await this.databaseService.car.findUnique({ where: { id: carId } });
+        if (!car) throw new NotFoundException('Car not found');
 
-            if (!car) {
-                throw new NotFoundException('Car not found');
-            }
+        const savedCarItem = await this.databaseService.savedCarItem.findUnique({
+            where: { userId_carId: { userId, carId } },
+        });
+        if (savedCarItem) throw new NotFoundException('This car is saved by this user, already!');
 
-            const user = await this.databaseService.user.update({
-                where: { id: userId },
-                data: {
-                    savedCars: {
-                        connect: { id: carId },
-                    },
-                },
-            });
-
-            if (!user) {
-                throw new NotFoundException('User not found');
-            }
-            return { message: 'Car successfully added to the saved cars' };
-        } catch (error) {
-            if (error instanceof Prisma.PrismaClientKnownRequestError) {
-                if (error.code === 'P2002') {
-                    throw new ForbiddenException('Car already saved by this user');
-                }
-            }
-            throw error;
-        }
+        await this.databaseService.savedCarItem.create({ data: { userId, carId } });
+        return { message: 'Car successfully added to the saved cars' };
     }
 
-    async getSavedCars(userId: number, query: any) {
+    // TODO: UnSave Car
+
+    async getSavedCars(userId: number, query: RawQueryParamsDto): Promise<GetCarDto[]> {
         try {
-            const cars = await this.databaseService.user.findMany({
-                where: { id: userId },
-                select: {
-                    savedCars: {
-                        skip: query.skip,
-                        orderBy: query.orderBy,
-                        take: query.take,
-                        where: { ...query.where },
-                        select: excludeFieldUtil(this.databaseService.car, ['userId']),
-                    },
-                },
+            const rawCars = await this.databaseService.savedCarItem.findMany({
+                take: query.take,
+                skip: query.skip,
+                where: { userId },
+                select: { car: true },
             });
-            return cars[0].savedCars;
+            const cars = rawCars.map((item) => item.car);
+            return plainToInstance(GetCarDto, cars, { excludeExtraneousValues: true });
         } catch {
             throw new BadRequestException('Bad Request!');
         }
